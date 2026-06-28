@@ -1,0 +1,11 @@
+bin/
+obj/
+.git/
+.vs/
+.vscode/
+reports/
+evidence/
+*.user
+*.suo
+*.log
+docker-compose.override.yml

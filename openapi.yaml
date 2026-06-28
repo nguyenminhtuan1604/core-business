@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: core-business-service API
+  version: 1.0.0
+  description: Core business rule service for FIT4110 Smart Campus Operations Platform, group B6.
+servers:
+  - url: http://localhost:8090
+paths:
+  /health:
+    get:
+      summary: Service health
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /api/iot-events:
+    post:
+      summary: Create IoT event
+      description: Creates an IoT event and creates a high alert when temperature is greater than 35.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IoTEvent"
+      responses:
+        "201":
+          description: IoT event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCreateResponse"
+  /api/access-events:
+    post:
+      summary: Create access event
+      description: Creates an access event and creates a medium alert when event_time is outside 22:00-05:00.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessEvent"
+      responses:
+        "201":
+          description: Access event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCreateResponse"
+  /api/vision-events:
+    post:
+      summary: Create vision event
+      description: Creates a vision event and creates a high alert when risk_level is high.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisionEvent"
+      responses:
+        "201":
+          description: Vision event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCreateResponse"
+  /api/alerts:
+    get:
+      summary: List alerts
+      responses:
+        "200":
+          description: Alerts ordered by newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+    post:
+      summary: Create manual alert
+      description: Creates an alert and calls B7 Notification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlertRequest"
+      responses:
+        "201":
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertCreateResponse"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: core-business-service
+        version:
+          type: string
+          example: 1.0.0
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        severity:
+          type: string
+          example: high
+        source:
+          type: string
+          example: iot
+        message:
+          type: string
+          example: Temperature is above threshold at Building A - Level 2
+        created_at:
+          type: string
+          format: date-time
+    EventCreateResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        alert_created:
+          type: boolean
+          example: true
+        alert:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Alert"
+        notification_sent:
+          type: boolean
+          example: false
+        notification_error:
+          type: string
+          nullable: true
+          example: "B7 notification timeout after 5 seconds"
+    AlertCreateResponse:
+      type: object
+      properties:
+        alert_created:
+          type: boolean
+          example: true
+        alert:
+          $ref: "#/components/schemas/Alert"
+        notification_sent:
+          type: boolean
+          example: true
+        notification_error:
+          type: string
+          nullable: true
+    CreateAlertRequest:
+      type: object
+      required:
+        - severity
+        - source
+        - message
+      properties:
+        severity:
+          type: string
+          example: medium
+        source:
+          type: string
+          example: manual
+        message:
+          type: string
+          example: Manual operational alert
+    IoTEvent:
+      type: object
+      required:
+        - device_id
+        - location
+        - temperature
+      properties:
+        device_id:
+          type: string
+          example: temp-sensor-a1
+        location:
+          type: string
+          example: Building A - Level 2
+        temperature:
+          type: number
+          format: decimal
+          example: 36.5
+        event_time:
+          type: string
+          format: date-time
+    AccessEvent:
+      type: object
+      required:
+        - user_id
+        - door_id
+        - location
+      properties:
+        user_id:
+          type: string
+          example: student-1001
+        door_id:
+          type: string
+          example: door-lab-01
+        location:
+          type: string
+          example: Lab 01
+        result:
+          type: string
+          example: granted
+        event_time:
+          type: string
+          format: date-time
+    VisionEvent:
+      type: object
+      required:
+        - camera_id
+        - location
+        - risk_level
+      properties:
+        camera_id:
+          type: string
+          example: cam-gate-01
+        location:
+          type: string
+          example: Main Gate
+        risk_level:
+          type: string
+          example: high
+        description:
+          type: string
+          example: Crowd risk detected
+        event_time:
+          type: string
+          format: date-time
+    NotificationRequest:
+      type: object
+      description: Payload sent from B6 to B7.
+      properties:
+        alert_id:
+          type: string
+          example: "1"
+        severity:
+          type: string
+          example: high
+        message:
+          type: string
+          example: High risk vision event detected at Main Gate
+        source:
+          type: string
+          example: vision
+        target:
+          type: string
+          example: security_team

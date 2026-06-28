@@ -1,0 +1,11 @@
+
+.env
+target/
+.idea/
+.vscode/
+*.log
+
+src/bin/
+src/obj/
+bin/
+obj/

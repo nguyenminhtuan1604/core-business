@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "core-business-service B6 Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8090"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Create IoT Event - High Temperature",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"temp-sensor-a1\",\n  \"location\": \"Building A - Level 2\",\n  \"temperature\": 36.5,\n  \"event_time\": \"2026-06-17T15:00:00Z\"\n}"
+        },
+        "url": "{{baseUrl}}/api/iot-events"
+      }
+    },
+    {
+      "name": "Create Access Event - Outside Hours",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"student-1001\",\n  \"door_id\": \"door-lab-01\",\n  \"location\": \"Lab 01\",\n  \"result\": \"granted\",\n  \"event_time\": \"2026-06-17T23:30:00Z\"\n}"
+        },
+        "url": "{{baseUrl}}/api/access-events"
+      }
+    },
+    {
+      "name": "Create Vision Event - High Risk",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"camera_id\": \"cam-gate-01\",\n  \"location\": \"Main Gate\",\n  \"risk_level\": \"high\",\n  \"description\": \"Crowd risk detected\",\n  \"event_time\": \"2026-06-17T10:00:00Z\"\n}"
+        },
+        "url": "{{baseUrl}}/api/vision-events"
+      }
+    },
+    {
+      "name": "List Alerts",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/alerts"
+      }
+    },
+    {
+      "name": "Create Manual Alert",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"severity\": \"medium\",\n  \"source\": \"manual\",\n  \"message\": \"Manual operational alert\"\n}"
+        },
+        "url": "{{baseUrl}}/api/alerts"
+      }
+    }
+  ]
+}
